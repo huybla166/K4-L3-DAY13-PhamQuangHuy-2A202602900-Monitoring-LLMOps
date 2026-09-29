@@ -1,0 +1,11 @@
+$ curl -i -X POST http://127.0.0.1:8000/chat  (user u02, feature qa)
+# captured 2026-09-29T07:46:55+00:00 UTC, commit 37fad82
+
+HTTP/1.1 200
+x-request-id: req-7780c057
+x-response-time-ms: 3492.06
+body.correlation_id: req-7780c057
+
+$ grep 'req-7780c057' data/logs.jsonl   # các dòng log của đúng request trên
+{"service": "api", "payload": {"message_preview": "Explain why metrics traces and logs work together"}, "event": "request_received", "user_id_hash": "95b6504a8bd6", "session_id": "s02", "env": "dev", "feature": "qa", "correlation_id": "req-7780c057", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-09-29T07:46:55.671388Z"}
+{"service": "api", "latency_ms": 3488, "ttft_ms": 50, "tokens_in": 32, "tokens_out": 88, "cost_usd": 0.001416, "quality_score": 0.8, "tool_name": "retrieval", "tool_success": true, "payload": {"answer_preview": "Starter answer. You should improve this output logic and add better quality chec..."}, "event": "response_sent", "user_id_hash": "95b6504a8bd6", "session_id": "s02", "env": "dev", "feature": "qa", "correlation_id": "req-7780c057", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-09-29T07:46:59.161313Z"}

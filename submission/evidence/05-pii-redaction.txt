@@ -1,0 +1,11 @@
+$ python - <<  # lọc request_received có chứa [REDACTED_*] trong data/logs.jsonl
+# captured 2026-09-29T07:46:55+00:00 UTC, commit 37fad82
+
+{"service": "api", "payload": {"message_preview": "What is your refund policy? My email is [REDACTED_EMAIL]"}, "event": "request_received", "user_id_hash": "2055254ee30a", "session_id": "s01", "env": "dev", "feature": "qa", "correlation_id": "req-9e0c6343", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-09-29T07:43:01.106153Z"}
+{"service": "api", "payload": {"message_preview": "Here is my phone [REDACTED_PHONE_VN], what should be logged?"}, "event": "request_received", "user_id_hash": "64f6ec689229", "session_id": "s05", "env": "dev", "feature": "qa", "correlation_id": "req-8c13b926", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-09-29T07:43:05.744612Z"}
+{"service": "api", "payload": {"message_preview": "What is the policy for PII and credit card [REDACTED_CREDIT_CARD]?"}, "event": "request_received", "user_id_hash": "4d14d5d4f719", "session_id": "s09", "env": "dev", "feature": "qa", "correlation_id": "req-7f69a8de", "model": "claude-sonnet-4-5", "level": "info", "ts": "2026-09-29T07:43:07.535965Z"}
+
+# Kiểm tra giá trị PII giả của data/sample_queries.jsonl (u01 email, u05 phone, u09 thẻ) còn nguyên văn trong log không:
+email (u01): 0 lần
+phone_vn (u05): 0 lần
+credit_card (u09): 0 lần

@@ -4,13 +4,13 @@
 
 ## 1. Thông tin học viên
 
-- **Họ và tên:**
-- **MSSV:**
+- **Họ và tên:** Phạm Quang Huy
+- **MSSV:** 2A202602900
 - **Lớp:** K4-L3A
-- **Repository URL:**
+- **Repository URL:** https://github.com/huybla166/K4-L3-DAY13-PhamQuangHuy-2A202602900-Monitoring-LLMOps
 - **Commit SHA cuối:**
 - **Challenge ID:**
-- **Tên project Langfuse cá nhân:** `day13-k4-l3a-<MSSV>`
+- **Tên project Langfuse cá nhân:** `day13-k4-l3a-02900`
 
 ## 2. Evidence index
 
@@ -19,10 +19,10 @@
 | Evidence | Đường dẫn |
 |---|---|
 | Pytest cuối | `evidence/01-pytest.png` |
-| Log validator | `evidence/02-log-validator.png` |
+| Log validator | [`evidence/02-log-validator.txt`](evidence/02-log-validator.txt) |
 | Dashboard validator | `evidence/03-dashboard-validator.png` |
-| Structured log | `evidence/04-structured-log.png` |
-| PII redaction | `evidence/05-pii-redaction.png` |
+| Structured log | [`evidence/04-structured-log.txt`](evidence/04-structured-log.txt) |
+| PII redaction | [`evidence/05-pii-redaction.txt`](evidence/05-pii-redaction.txt) |
 | Trace list | `evidence/06-trace-list.png` |
 | Trace waterfall | `evidence/07-trace-waterfall.png` |
 | Trace metadata | `evidence/08-trace-metadata.png` |
@@ -37,11 +37,11 @@
 
 | Nội dung | Baseline | Kết quả cuối | Nhận xét |
 |---|---|---|---|
-| `validate_logs.py` | | | |
-| `validate_dashboard.py` | | | |
-| `pytest` | | | |
+| `validate_logs.py` | 30/100 (41 dòng; 40 thiếu field/context, 0 correlation ID) | 100/100 (sau CP1) | |
+| `validate_dashboard.py` | 6/6 | | |
+| `pytest` | 22 passed | 31 passed (sau CP1, thêm 9 test PII) | |
 | Số traces hợp lệ | | | |
-| Số PII leak | | | |
+| Số PII leak | 0 | 0 (sau CP1) | |
 | Latency P95 / TTFT P95 | | | |
 | Retrieval success rate | | | |
 
