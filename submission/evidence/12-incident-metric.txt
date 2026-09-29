@@ -1,9 +1,0 @@
-# Challenge day13-k4-l3a-monitoring-llmops-v1 — panel Latency, tính từ data/logs.jsonl theo từng phút (UTC)
-# minute            n  p50_ms  p95_ms  p99_ms  ttft_p95_ms  errors  tool_success
-2026-09-29T08:29   1    1453    1453    1453           50       0  1/1
-2026-09-29T09:05   5    2659    5373    5373           50       0  5/5
-2026-09-29T09:07   5     154     155     155           51       0  5/5
-
-# Baseline trước sự cố: 30 request, p50=492 ms
-# 09:05 = sự cố (rag_slow được inject lúc 09:05:34); 09:07 = sau khi disable, chạy lại cùng query challenge
-# Các điểm cao 08:11–08:28 trên ảnh 12 là request chạy prompt versioning từ process riêng (cold start), không thuộc sự cố này.
