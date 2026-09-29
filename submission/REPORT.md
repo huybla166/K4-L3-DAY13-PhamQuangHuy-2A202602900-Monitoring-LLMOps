@@ -9,7 +9,7 @@
 - **Lớp:** K4-L3A
 - **Repository URL:** https://github.com/huybla166/K4-L3-DAY13-PhamQuangHuy-2A202602900-Monitoring-LLMOps
 - **Commit SHA cuối:**
-- **Challenge ID:**
+- **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3a-2A202602900`
 
 ## 2. Evidence index
@@ -29,9 +29,9 @@
 | Prompt versions | [`evidence/09-prompt-versions.png`](evidence/09-prompt-versions.png) |
 | Prompt rollback | [`evidence/10a-prompt-production-v2.png`](evidence/10a-prompt-production-v2.png) (trước) · [`evidence/10b-prompt-rollback-v1.png`](evidence/10b-prompt-rollback-v1.png) (sau) · [`evidence/10-prompt-rollback.txt`](evidence/10-prompt-rollback.txt) |
 | Dashboard runtime | [`evidence/11-dashboard-overview.png`](evidence/11-dashboard-overview.png) |
-| Incident metric | `evidence/12-incident-metric.png` |
-| Incident log | `evidence/13-incident-log.png` |
-| Incident trace | `evidence/14-incident-trace.png` |
+| Incident metric | [`evidence/12-incident-metric.png`](evidence/12-incident-metric.png) · [`evidence/12-incident-metric.txt`](evidence/12-incident-metric.txt) (số liệu theo phút) |
+| Incident log | [`evidence/13-incident-log.txt`](evidence/13-incident-log.txt) |
+| Incident trace | [`evidence/14-incident-trace.png`](evidence/14-incident-trace.png) |
 
 ## 3. Kết quả kỹ thuật
 
@@ -78,11 +78,11 @@
 
 ## 7. Điều tra challenge
 
-- **Challenge ID:**
-- **Khoảng thời gian điều tra:**
-- **Triệu chứng từ metrics:**
-- **Log line và correlation ID liên quan:**
-- **Trace ID và span gây ảnh hưởng:**
+- **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1` (cohort K4)
+- **Khoảng thời gian điều tra:** 2026-09-29 09:05:34–09:05:51 UTC (inject + `load_test.py --challenge --concurrency 5`); kiểm chứng sau fix lúc 09:07:21 UTC
+- **Triệu chứng từ metrics:** panel Latency — P50 = 2659 ms, P95 = 5373 ms trên 5 request challenge (baseline median 492 ms; ngưỡng SLO P95 ≤ 3000 ms). TTFT P95 = 50 ms, error rate 0%, retrieval success 100%, cost/tokens/quality bình thường. Phía client mỗi request mất ≈ 16.4 s.
+- **Log line và correlation ID liên quan:** `req-cb4af3aa` — `response_sent`, `feature=monitoring`, `latency_ms=2659`, `ttft_ms=50`, `tool_success=true` (xem `evidence/13-incident-log.txt`)
+- **Trace ID và span gây ảnh hưởng:** `adda6b1a9c5f3273da4cee16db5fc785` — root `lab-agent-run` 2.66 s, span `retrieval` 2.50 s, `prompt-fetch` 0.00 s, `llm-generation` 0.15 s; cả 5 trace của sự cố đều có `retrieval` ≈ 2.50 s
 - **Root cause:**
 - **Fix action:**
 - **Preventive measure:**
