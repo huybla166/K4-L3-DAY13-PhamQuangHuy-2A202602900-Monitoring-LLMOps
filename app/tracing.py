@@ -24,6 +24,9 @@ except ImportError:  # pragma: no cover - chỉ dùng khi chưa cài requirement
         def update_current_generation(self, **kwargs: Any) -> None:
             return None
 
+        def score_current_trace(self, **kwargs: Any) -> None:
+            return None
+
     def get_client():
         return _DummyClient()
 

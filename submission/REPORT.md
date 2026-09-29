@@ -40,7 +40,7 @@
 | `validate_logs.py` | 30/100 (41 dòng; 40 thiếu field/context, 0 correlation ID) | 100/100 (sau CP1) | |
 | `validate_dashboard.py` | 6/6 | 6/6 (sau CP2) | |
 | `pytest` | 22 passed | 35 passed (sau CP2; thêm 9 test PII, 4 test dashboard) | |
-| Số traces hợp lệ | | 48 root traces trong project (sau CP2; ảnh 06) | |
+| Số traces hợp lệ | | 60 traces trong project Langfuse (ảnh 11; 48 lúc CP2, ảnh 06) | |
 | Số PII leak | 0 | 0 (sau CP1) | |
 | Latency P95 / TTFT P95 | | 6180 ms / 50 ms (dashboard 60 phút lúc CP2, ảnh 11) | |
 | Retrieval success rate | | 100% (dashboard lúc CP2) | |

@@ -72,6 +72,13 @@ class LabAgent:
             with propagate_attributes(prompt=prompt.managed_prompt):
                 response = self._generate(prompt)
             quality_score = self._heuristic_quality(message, response.text, docs)
+            # Gửi quality proxy lên Langfuse dưới dạng score của trace để dashboard Langfuse vẽ được panel quality
+            tracing.get_langfuse_client().score_current_trace(
+                name="quality_score",
+                value=quality_score,
+                data_type="NUMERIC",
+                comment="heuristic quality proxy 0-1",
+            )
             latency_ms = int((time.perf_counter() - started) * 1000)
             cost_usd = self._estimate_cost(response.usage.input_tokens, response.usage.output_tokens)
 
