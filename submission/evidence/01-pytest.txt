@@ -1,5 +1,5 @@
 $ python -m pytest -q
-# captured 2026-09-29T08:50:04 UTC, working tree on top of 0503fa5 (CP2 changes)
+# captured 2026-09-29T10:19:27 UTC, commit 98f0f3b
 
 ...................................                                      [100%]
-35 passed in 1.69s
+35 passed in 1.60s
