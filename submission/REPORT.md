@@ -8,7 +8,7 @@
 - **MSSV:** 2A202602900
 - **Lớp:** K4-L3A
 - **Repository URL:** https://github.com/huybla166/K4-L3-DAY13-PhamQuangHuy-2A202602900-Monitoring-LLMOps
-- **Commit SHA cuối:** `175f9ce0d18f3ffd50ef23fef970dd0dcc80384b` (commit chứa toàn bộ source, evidence và nội dung report; các commit sau đó chỉ cập nhật dòng SHA này)
+- **Commit SHA cuối:** `175f9ce0d18f3ffd50ef23fef970dd0dcc80384b` 
 - **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3a-2A202602900`
 
@@ -131,7 +131,7 @@
   - Kèm theo SLO là các guardrail: error rate ≤ 2 %, retrieval success ≥ 90 %, cost ≤ 2.5 USD/ngày, quality ≥ 0.75.
 - **Cách tính error budget:** Error budget = 100 % − 99.5 % = 0.5 % số request trong 28 ngày.
   - Ví dụ ở mức 10 request/phút: 10 × 60 × 24 × 28 = 403 200 request, tức được phép tối đa 0.5 % × 403 200 = 2 016 request chậm hoặc lỗi. Quy ra thời gian: 0.5 % × 28 ngày = 3.36 giờ nếu mọi request đều xấu.
-  - Burn rate = tỉ lệ request xấu / 0.5 %. Burn rate 14.4 kéo dài 1 giờ tiêu 2 % budget thì page on-call. Khi đã tiêu 50 % budget thì dừng deploy tính năng mới và ưu tiên sửa độ tin cậy.
+  - Burn rate = tỉ lệ request xấu / 0.5 %. Burn rate 14.4 kéo dài 1 giờ tiêu 14.4/672 ≈ 2.14 % budget của cửa sổ 28 ngày thì page on-call. Khi đã tiêu 50 % budget thì dừng deploy tính năng mới và ưu tiên sửa độ tin cậy.
   - Áp vào challenge: 1/5 request (5373 ms) vượt 3000 ms, tức 20 % request xấu trong phút đó, tương ứng burn rate 40 nếu tình trạng kéo dài.
 - **Ba alert và runbook tương ứng:** Alert khai báo trong [`config/alert_rules.yaml`](../config/alert_rules.yaml), runbook trong [`docs/alerts.md`](../docs/alerts.md). Cả ba đều symptom-based, owner là Phạm Quang Huy, gửi về Slack `#day13-k4-l3a-alerts`.
 

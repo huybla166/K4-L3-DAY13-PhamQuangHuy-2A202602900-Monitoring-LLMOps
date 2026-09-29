@@ -34,8 +34,8 @@ primary_slo:
       → được phép tối đa 0.5% × 403200 = 2016 request chậm hoặc lỗi.
     time_equivalent: "0.5% × 28 ngày = 3.36 giờ (≈ 201.6 phút) nếu toàn bộ request đều xấu"
     burn_rate_policy: >-
-      Burn rate = tỉ lệ request xấu / 0.5%. Burn rate 14.4 trong 1 giờ tiêu 2% budget
-      → page on-call; hết 50% budget → dừng deploy tính năng mới, ưu tiên sửa độ tin cậy.
+      Burn rate = tỉ lệ request xấu / 0.5%. Burn rate 14.4 trong 1 giờ tiêu 14.4/672 ≈ 2.14%
+      budget của cửa sổ 28 ngày → page on-call; hết 50% budget → dừng deploy tính năng mới, ưu tiên sửa độ tin cậy.
 guardrails:
   error_rate_pct_max: 2
   daily_cost_usd_max: 2.5
