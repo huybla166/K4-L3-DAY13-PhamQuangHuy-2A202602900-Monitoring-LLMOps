@@ -3,11 +3,39 @@ primary_slo:
   name: fast_successful_requests
   window: 28d
   sli:
+    # Request "tốt" = trả lời thành công VÀ nhanh hơn 3s; request lỗi (request_failed)
+    # không có response_sent nên tự động bị tính là "xấu".
     good_event: 'event == "response_sent" and latency_ms <= 3000'
     total_event: 'event == "request_received"'
   target_percent: 99.5
   error_budget_percent: 0.5
-  note: Học viên phải giải thích hoặc điều chỉnh ngưỡng bằng baseline của mình.
+  rationale: >-
+    Giữ ngưỡng 3000 ms và mục tiêu 99.5%. Baseline đo ngày 2026-09-29 cho P50 = 454 ms và
+    TTFT P95 = 50 ms, tức request bình thường nhanh hơn ngưỡng khoảng 6 lần, nên 3 s là giới
+    hạn "người dùng bắt đầu thấy chậm" chứ không phải giá trị sát baseline dễ báo động giả.
+    Các request vượt 3 s trong baseline (3450–6819 ms) đều rơi vào lúc cache prompt Langfuse
+    hết hạn (TTL 60 s) và app phải fetch prompt trên đường request (timeout 2 s) — đây là
+    nguyên nhân cần xử lý (span `prompt-fetch` trên trace), không phải lý do nới SLO.
+  baseline_observed:
+    measured_at: "2026-09-29"
+    source: data/logs.jsonl (23 request, trước khi tạo prompt managed trên Langfuse)
+    latency_p50_ms: 454
+    latency_p95_ms: 3488
+    latency_p99_ms: 6819
+    ttft_p95_ms: 50
+    error_rate_pct: 0
+    retrieval_success_rate_pct: 100
+    avg_cost_usd_per_request: 0.00196
+    quality_score_mean: 0.87
+  error_budget:
+    formula: "request xấu được phép = tổng request trong 28 ngày × (100% − 99.5%)"
+    example: >-
+      Ở mức 10 request/phút: 10 × 60 × 24 × 28 = 403200 request/28 ngày
+      → được phép tối đa 0.5% × 403200 = 2016 request chậm hoặc lỗi.
+    time_equivalent: "0.5% × 28 ngày = 3.36 giờ (≈ 201.6 phút) nếu toàn bộ request đều xấu"
+    burn_rate_policy: >-
+      Burn rate = tỉ lệ request xấu / 0.5%. Burn rate 14.4 trong 1 giờ tiêu 2% budget
+      → page on-call; hết 50% budget → dừng deploy tính năng mới, ưu tiên sửa độ tin cậy.
 guardrails:
   error_rate_pct_max: 2
   daily_cost_usd_max: 2.5

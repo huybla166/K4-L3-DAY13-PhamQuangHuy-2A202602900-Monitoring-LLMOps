@@ -1,25 +1,41 @@
+# Ba alert symptom-based: dựa trên triệu chứng người dùng/ngân sách đo từ data/logs.jsonl,
+# không dựa trên tên implementation nội bộ. Mỗi alert có runbook trong docs/alerts.md.
 alerts:
-  - name: TODO_alert_1
-    severity: TODO
-    condition: TODO
-    duration: TODO
+  - name: HighLatencyP95
+    severity: P2-warning
+    condition: 'p95(latency_ms where event == "response_sent") over last 5m > 3000'
+    duration: 5m
     type: symptom-based
     channel: slack
-    owner: TODO
+    slack_channel: "#day13-k4-l3a-alerts"
+    owner: Pham Quang Huy (on-call Day 13 agent)
+    slo: fast_successful_requests
+    dashboard_panel: latency
     runbook: docs/alerts.md#alert-1
-  - name: TODO_alert_2
-    severity: TODO
-    condition: TODO
-    duration: TODO
+  - name: HighErrorRate
+    severity: P1-critical
+    condition: >-
+      count(event == "request_failed") / count(event == "request_received") * 100 over last 5m > 2
+      OR retrieval success rate (tool_success == true) over last 5m < 90
+    duration: 5m
     type: symptom-based
     channel: slack
-    owner: TODO
+    slack_channel: "#day13-k4-l3a-alerts"
+    owner: Pham Quang Huy (on-call Day 13 agent)
+    slo: fast_successful_requests
+    dashboard_panel: errors
     runbook: docs/alerts.md#alert-2
-  - name: TODO_alert_3
-    severity: TODO
-    condition: TODO
-    duration: TODO
+  - name: CostBurnSpike
+    severity: P3-warning
+    condition: >-
+      avg(cost_usd where event == "response_sent") over last 10m > 0.004
+      (≈ 2x baseline 0.00196 USD/request) OR sum(cost_usd) over last 1h > 0.104
+      (= daily_cost_usd_max 2.5 / 24)
+    duration: 10m
     type: symptom-based
     channel: slack
-    owner: TODO
+    slack_channel: "#day13-k4-l3a-alerts"
+    owner: Pham Quang Huy (on-call Day 13 agent)
+    slo: guardrails.daily_cost_usd_max
+    dashboard_panel: cost
     runbook: docs/alerts.md#alert-3

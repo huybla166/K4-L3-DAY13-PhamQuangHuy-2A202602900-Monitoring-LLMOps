@@ -3,13 +3,17 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
-from . import metrics
-from .mock_llm import FakeLLM
+from . import metrics, tracing
+from .mock_llm import FakeLLM, FakeResponse
 from .mock_rag import retrieve
-from .pii import hash_user_id, summarize_text
-from .prompt_management import resolve_prompt
+from .pii import hash_user_id, scrub_text, summarize_text
+from .prompt_management import ResolvedPrompt, resolve_prompt
 from .tracing import get_langfuse_client, observe, propagate_attributes, tracing_enabled
+
+INPUT_PRICE_PER_MTOK = 3
+OUTPUT_PRICE_PER_MTOK = 15
 
 
 @dataclass
@@ -51,14 +55,8 @@ class LabAgent:
             },
         ):
             started = time.perf_counter()
-            docs = retrieve(message)
-            prompt = resolve_prompt(
-                langfuse_client,
-                feature=feature,
-                docs=docs,
-                message=message,
-                enabled=tracing_enabled(),
-            )
+            docs = self._retrieve(message)
+            prompt = self._resolve_prompt(langfuse_client, feature=feature, docs=docs, message=message)
             langfuse_client.update_current_span(
                 metadata={
                     "doc_count": len(docs),
@@ -71,10 +69,8 @@ class LabAgent:
                 },
                 version=prompt.version,
             )
-            # TODO (CP2): instrument retrieve() and FakeLLM.generate() as child
-            # observations. The nested generation must receive prompt, usage and cost.
             with propagate_attributes(prompt=prompt.managed_prompt):
-                response = self.llm.generate(prompt.text)
+                response = self._generate(prompt)
             quality_score = self._heuristic_quality(message, response.text, docs)
             latency_ms = int((time.perf_counter() - started) * 1000)
             cost_usd = self._estimate_cost(response.usage.input_tokens, response.usage.output_tokens)
@@ -98,9 +94,77 @@ class LabAgent:
             quality_score=quality_score,
         )
 
+    # Child observations: @observe lồng chúng dưới root `lab-agent-run` theo context OTel.
+    # Cập nhật observation hiện tại qua SDK client (tracing.get_langfuse_client), và chỉ ghi
+    # bản preview đã scrub PII — không capture raw input/output.
+    @observe(name="retrieval", as_type="retriever", capture_input=False, capture_output=False)
+    def _retrieve(self, message: str) -> list[str]:
+        started = time.perf_counter()
+        docs = retrieve(message)
+        tracing.get_langfuse_client().update_current_span(
+            input={"query_preview": summarize_text(message)},
+            output={"doc_count": len(docs), "doc_previews": [summarize_text(doc, 60) for doc in docs]},
+            metadata={"doc_count": len(docs), "retrieval_ms": int((time.perf_counter() - started) * 1000)},
+        )
+        return docs
+
+    # Fetch prompt từ Langfuse nằm trên đường request (timeout 2s, cache 60s) — tách span riêng
+    # để waterfall thấy được thời gian này thay vì một khoảng trống trong root.
+    @observe(name="prompt-fetch", as_type="span", capture_input=False, capture_output=False)
+    def _resolve_prompt(self, langfuse_client, *, feature: str, docs: list[str], message: str) -> ResolvedPrompt:
+        prompt = resolve_prompt(
+            langfuse_client,
+            feature=feature,
+            docs=docs,
+            message=message,
+            enabled=tracing_enabled(),
+        )
+        tracing.get_langfuse_client().update_current_span(
+            metadata={
+                "prompt_name": prompt.name,
+                "prompt_label": prompt.label,
+                "prompt_version": prompt.version,
+                "prompt_source": prompt.source,
+                "prompt_fetch_error": prompt.fetch_error or "",
+            },
+            level="WARNING" if prompt.source == "local-fallback" else "DEFAULT",
+        )
+        return prompt
+
+    @observe(name="llm-generation", as_type="generation", capture_input=False, capture_output=False)
+    def _generate(self, prompt: ResolvedPrompt) -> FakeResponse:
+        started_at = datetime.now(timezone.utc)
+        response = self.llm.generate(prompt.text)
+        input_cost, output_cost = self._cost_breakdown(
+            response.usage.input_tokens, response.usage.output_tokens
+        )
+        tracing.get_langfuse_client().update_current_generation(
+            model=response.model,
+            input=scrub_text(prompt.text),
+            output=summarize_text(response.text, max_len=200),
+            usage_details={
+                "input": response.usage.input_tokens,
+                "output": response.usage.output_tokens,
+            },
+            cost_details={"input": input_cost, "output": output_cost},
+            completion_start_time=started_at + timedelta(milliseconds=response.ttft_ms),
+            prompt=prompt.managed_prompt,
+            metadata={
+                "ttft_ms": response.ttft_ms,
+                "prompt_name": prompt.name,
+                "prompt_label": prompt.label,
+                "prompt_version": prompt.version,
+            },
+        )
+        return response
+
+    def _cost_breakdown(self, tokens_in: int, tokens_out: int) -> tuple[float, float]:
+        input_cost = (tokens_in / 1_000_000) * INPUT_PRICE_PER_MTOK
+        output_cost = (tokens_out / 1_000_000) * OUTPUT_PRICE_PER_MTOK
+        return input_cost, output_cost
+
     def _estimate_cost(self, tokens_in: int, tokens_out: int) -> float:
-        input_cost = (tokens_in / 1_000_000) * 3
-        output_cost = (tokens_out / 1_000_000) * 15
+        input_cost, output_cost = self._cost_breakdown(tokens_in, tokens_out)
         return round(input_cost + output_cost, 6)
 
     def _heuristic_quality(self, question: str, answer: str, docs: list[str]) -> float:

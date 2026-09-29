@@ -10,7 +10,7 @@
 - **Repository URL:** https://github.com/huybla166/K4-L3-DAY13-PhamQuangHuy-2A202602900-Monitoring-LLMOps
 - **Commit SHA cuối:**
 - **Challenge ID:**
-- **Tên project Langfuse cá nhân:** `day13-k4-l3a-02900`
+- **Tên project Langfuse cá nhân:** `day13-k4-l3a-2A202602900`
 
 ## 2. Evidence index
 
@@ -18,17 +18,17 @@
 
 | Evidence | Đường dẫn |
 |---|---|
-| Pytest cuối | `evidence/01-pytest.png` |
+| Pytest cuối | [`evidence/01-pytest.txt`](evidence/01-pytest.txt) |
 | Log validator | [`evidence/02-log-validator.txt`](evidence/02-log-validator.txt) |
-| Dashboard validator | `evidence/03-dashboard-validator.png` |
+| Dashboard validator | [`evidence/03-dashboard-validator.txt`](evidence/03-dashboard-validator.txt) |
 | Structured log | [`evidence/04-structured-log.txt`](evidence/04-structured-log.txt) |
 | PII redaction | [`evidence/05-pii-redaction.txt`](evidence/05-pii-redaction.txt) |
-| Trace list | `evidence/06-trace-list.png` |
-| Trace waterfall | `evidence/07-trace-waterfall.png` |
-| Trace metadata | `evidence/08-trace-metadata.png` |
-| Prompt versions | `evidence/09-prompt-versions.png` |
-| Prompt rollback | `evidence/10-prompt-rollback.png` |
-| Dashboard runtime | `evidence/11-dashboard-overview.png` |
+| Trace list | [`evidence/06-trace-list.png`](evidence/06-trace-list.png) |
+| Trace waterfall | [`evidence/07-trace-waterfall.png`](evidence/07-trace-waterfall.png) |
+| Trace metadata | [`evidence/08-trace-metadata.png`](evidence/08-trace-metadata.png) |
+| Prompt versions | [`evidence/09-prompt-versions.png`](evidence/09-prompt-versions.png) |
+| Prompt rollback | [`evidence/10a-prompt-production-v2.png`](evidence/10a-prompt-production-v2.png) (trước) · [`evidence/10b-prompt-rollback-v1.png`](evidence/10b-prompt-rollback-v1.png) (sau) · [`evidence/10-prompt-rollback.txt`](evidence/10-prompt-rollback.txt) |
+| Dashboard runtime | [`evidence/11-dashboard-overview.png`](evidence/11-dashboard-overview.png) |
 | Incident metric | `evidence/12-incident-metric.png` |
 | Incident log | `evidence/13-incident-log.png` |
 | Incident trace | `evidence/14-incident-trace.png` |
@@ -38,12 +38,12 @@
 | Nội dung | Baseline | Kết quả cuối | Nhận xét |
 |---|---|---|---|
 | `validate_logs.py` | 30/100 (41 dòng; 40 thiếu field/context, 0 correlation ID) | 100/100 (sau CP1) | |
-| `validate_dashboard.py` | 6/6 | | |
-| `pytest` | 22 passed | 31 passed (sau CP1, thêm 9 test PII) | |
-| Số traces hợp lệ | | | |
+| `validate_dashboard.py` | 6/6 | 6/6 (sau CP2) | |
+| `pytest` | 22 passed | 35 passed (sau CP2; thêm 9 test PII, 4 test dashboard) | |
+| Số traces hợp lệ | | 48 root traces trong project (sau CP2; ảnh 06) | |
 | Số PII leak | 0 | 0 (sau CP1) | |
-| Latency P95 / TTFT P95 | | | |
-| Retrieval success rate | | | |
+| Latency P95 / TTFT P95 | | 6180 ms / 50 ms (dashboard 60 phút lúc CP2, ảnh 11) | |
+| Retrieval success rate | | 100% (dashboard lúc CP2) | |
 
 ## 4. Logging và PII
 
@@ -57,13 +57,19 @@
 - **Cách xác nhận traces do chính tôi tạo trong project cá nhân:**
 - **Cấu trúc root/retrieval/generation observations:**
 - **Cách nối trace với log:**
-- **Prompt name:**
-- **Version/label baseline:**
-- **Version/label candidate:**
+- **Prompt name:** `day13-chat`
+- **Version/label baseline:** version 1 — labels `baseline`, `production`
+- **Version/label candidate:** version 2 — label `candidate` (thêm dòng "Answer in at most 3 sentences.")
 - **Trace ID của mỗi version:**
+  - v1 (`baseline`, `req-prompt-baseline-2`): `4802e2df111775f853dc28d2d93de5c6`
+  - v2 (`candidate`, `req-prompt-candidate-2`): `8379ffb2c69ef74464690c468f2a4f98`
+  - v2 sau khi promote `production` (`req-prompt-promoted-v2`): `3a8e5ed94a6a3a155a4622d095349a07`
+  - v1 sau khi rollback `production` (`req-prompt-rollback-v1`): `6a6141a1a8760c68e576675ccecb2398`
 - **Cách promote và rollback `production`:**
 
 ## 6. Dashboard, SLO và alerts
+
+![Dashboard overview](evidence/11-dashboard-overview.png)
 
 - **Dashboard và sáu panel:**
 - **SLO và lý do chọn:**
